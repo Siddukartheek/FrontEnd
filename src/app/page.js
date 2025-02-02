@@ -1,9 +1,8 @@
-"use client"
-
+"use client";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table, Button, Form } from "react-bootstrap";
+import { Table, Button, Form, Spinner, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Home = () => {
@@ -14,29 +13,25 @@ const Home = () => {
   const [filterField, setFilterField] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    name_of_customer: "",
+    email: "",
+    mobile_number: "",
+    address: "",
+    city: "",
+    country: "",
+    company: "",
+    job_title: "",
+  });
 
   useEffect(() => {
     fetchCustomers();
   }, [currentPage, searchQuery, filterField, filterValue]);
 
-  // const fetchCustomers = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:8000/api/customers", {
-  //       params: {
-  //         page: currentPage,
-  //         limit,
-  //         search: searchQuery,
-  //         filterField,
-  //         filterValue,
-  //       },
-  //     });
-  //     setCustomers(response.data.data.customers);
-  //     setTotalPages(response.data.data.pagination.totalPages);
-  //   } catch (error) {
-  //     console.error("Error fetching customers:", error);
-  //   }
-  // };
   const fetchCustomers = async () => {
+    setLoading(true);
     try {
       const response = await axios.get("http://localhost:8000/api/customers", {
         params: { page: currentPage, limit, search: searchQuery, filterField, filterValue },
@@ -46,9 +41,11 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching customers:", error);
       alert("Failed to fetch customers. Please check the API server.");
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
@@ -67,6 +64,7 @@ const Home = () => {
   return (
     <div className="container mt-4">
       <h1>Customer Table</h1>
+      {loading && <Spinner animation="border" role="status" className="d-block mx-auto" />} 
 
       <div className="d-flex mb-3">
         <Form.Control
@@ -108,19 +106,25 @@ const Home = () => {
           </tr>
         </thead>
         <tbody>
-          {customers.map((customer, index) => (
-            <tr key={index}>
-              <td>{customer.id}</td>
-              <td>{customer.name_of_customer}</td>
-              <td>{customer.email}</td>
-              <td>{customer.mobile_number}</td>
-              <td>{customer.address}</td>
-              <td>{customer.city}</td>
-              <td>{customer.country}</td>
-              <td>{customer.company}</td>
-              <td>{customer.job_title}</td>
+          {loading ? (
+            <tr>
+              <td colSpan="9" className="text-center">Loading...</td>
             </tr>
-          ))}
+          ) : (
+            customers.map((customer, index) => (
+              <tr key={index}>
+                <td>{customer.id}</td>
+                <td>{customer.name_of_customer}</td>
+                <td>{customer.email}</td>
+                <td>{customer.mobile_number}</td>
+                <td>{customer.address}</td>
+                <td>{customer.city}</td>
+                <td>{customer.country}</td>
+                <td>{customer.company}</td>
+                <td>{customer.job_title}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </Table>
 
@@ -140,4 +144,3 @@ const Home = () => {
 };
 
 export default Home;
-
