@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "-": "^0.0.1",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "next": "14.2.5",
